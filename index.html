@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nikan's Elite Coaching – Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–bg: #0a0a0a;
+–white: #f5f2ed;
+–accent: #d4ff00;
+–mid: #1a1a1a;
+–border: rgba(245,242,237,0.1);
+–muted: #666;
+–active-border: rgba(212,255,0,0.5);
+}
+
+html, body {
+-webkit-text-size-adjust: 100%;
+height: 100%;
+background: #0a0a0a !important;
+color: var(–white);
+font-family: ‘DM Sans’, sans-serif;
+font-weight: 300;
+overflow: hidden;
+}
+
+#progressBar {
+position: fixed;
+top: 0; left: 0;
+height: 3px;
+background: var(–accent);
+transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+z-index: 100;
+box-shadow: 0 0 12px rgba(212,255,0,0.4);
+}
+
+.topnav {
+position: fixed;
+top: 0; left: 0; right: 0;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 20px 28px;
+z-index: 50;
+}
+
+.brand {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+letter-spacing: 0.1em;
+color: var(–white);
+opacity: 0.4;
+}
+
+.step-counter {
+font-size: 12px;
+color: var(–muted);
+letter-spacing: 0.08em;
+}
+
+#slides {
+position: fixed;
+inset: 0;
+}
+
+.slide {
+position: absolute;
+inset: 0;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 0 clamp(28px, 10vw, 160px);
+opacity: 0;
+pointer-events: none;
+transform: translateY(48px);
+transition: opacity 0.42s ease, transform 0.42s cubic-bezier(0.4,0,0.2,1);
+max-width: 860px;
+}
+
+.slide.active {
+opacity: 1;
+pointer-events: all;
+transform: translateY(0);
+}
+
+.slide.exit-up {
+opacity: 0;
+transform: translateY(-48px);
+pointer-events: none;
+transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.q-num {
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.14em;
+color: var(–accent);
+margin-bottom: 14px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.q-num::after { content: ‘\203A’; font-size: 14px; }
+
+.q-text {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(30px, 5vw, 54px);
+line-height: 1.05;
+letter-spacing: 0.02em;
+margin-bottom: 36px;
+max-width: 680px;
+}
+
+.q-sub {
+font-size: 14px;
+color: var(–muted);
+margin-top: -28px;
+margin-bottom: 24px;
+font-weight: 300;
+}
+
+.text-input {
+background: transparent;
+border: none;
+border-bottom: 2px solid rgba(245,242,237,0.18);
+color: var(–white);
+font-family: ‘DM Sans’, sans-serif;
+font-size: clamp(20px, 3vw, 28px);
+font-weight: 300;
+padding: 10px 0 14px;
+width: 100%;
+max-width: 520px;
+outline: none;
+transition: border-color 0.2s;
+caret-color: var(–accent);
+}
+.text-input::placeholder { color: #2e2e2e; }
+.text-input:focus { border-color: var(–accent); }
+
+.choices {
+display: flex;
+flex-direction: column;
+gap: 10px;
+width: 100%;
+max-width: 560px;
+}
+
+.choice-btn {
+display: flex;
+align-items: center;
+gap: 16px;
+background: transparent;
+border: 1px solid var(–border);
+border-radius: 8px;
+color: #bbb;
+cursor: pointer;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 15px;
+font-weight: 300;
+padding: 13px 18px;
+text-align: left;
+transition: border-color 0.15s, background 0.15s, color 0.15s;
+width: 100%;
+}
+.choice-btn:hover { border-color: var(–active-border); background: rgba(212,255,0,0.04); color: var(–white); }
+.choice-btn.selected { border-color: var(–accent); background: rgba(212,255,0,0.08); color: var(–white); }
+
+.key-hint {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 24px;
+height: 24px;
+border: 1px solid #2e2e2e;
+border-radius: 4px;
+font-size: 11px;
+font-weight: 500;
+color: var(–muted);
+background: #111;
+flex-shrink: 0;
+transition: border-color 0.15s, color 0.15s;
+}
+.choice-btn.selected .key-hint { border-color: var(–accent); color: var(–accent); background: rgba(212,255,0,0.1); }
+
+.multi-choices {
+display: flex;
+flex-direction: column;
+gap: 10px;
+width: 100%;
+max-width: 560px;
+}
+
+.multi-btn {
+display: flex;
+align-items: center;
+gap: 16px;
+background: transparent;
+border: 1px solid var(–border);
+border-radius: 8px;
+color: #999;
+cursor: pointer;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 15px;
+font-weight: 300;
+padding: 13px 18px;
+text-align: left;
+transition: border-color 0.15s, background 0.15s, color 0.15s;
+width: 100%;
+}
+.multi-btn:hover { border-color: var(–active-border); background: rgba(212,255,0,0.04); color: var(–white); }
+.multi-btn.selected { border-color: var(–accent); background: rgba(212,255,0,0.08); color: var(–white); }
+
+.check-box {
+width: 20px; height: 20px; min-width: 20px;
+border: 1.5px solid #333;
+border-radius: 4px;
+background: #111;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s;
+flex-shrink: 0;
+}
+.multi-btn.selected .check-box { background: var(–accent); border-color: var(–accent); }
+.check-box svg { display: none; }
+.multi-btn.selected .check-box svg { display: block; }
+
+.cta-wrap {
+margin-top: 28px;
+display: flex;
+align-items: center;
+gap: 16px;
+flex-wrap: wrap;
+}
+
+.btn-next {
+background: var(–accent);
+border: none;
+border-radius: 6px;
+color: #000;
+cursor: pointer;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+letter-spacing: 0.1em;
+padding: 14px 28px;
+transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(212,255,0,0.25); }
+
+.hint-text { font-size: 12px; color: var(–muted); letter-spacing: 0.04em; }
+kbd { display: inline-block; padding: 1px 5px; border: 1px solid #333; border-radius: 3px; font-size: 11px; font-family: inherit; background: #1a1a1a; }
+
+.error-msg {
+font-size: 13px; color: #ff6b6b; margin-top: 10px;
+opacity: 0; transition: opacity 0.2s; height: 18px;
+}
+.error-msg.show { opacity: 1; }
+
+/* Welcome */
+.welcome-tag {
+font-size: 11px; font-weight: 500; letter-spacing: 0.22em;
+text-transform: uppercase; color: var(–accent); margin-bottom: 20px;
+}
+.welcome-h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(52px, 10vw, 96px);
+line-height: 0.92; margin-bottom: 24px;
+}
+.welcome-h1 em { font-style: normal; color: var(–accent); }
+.welcome-sub {
+font-size: 16px; line-height: 1.7; color: var(–muted);
+max-width: 420px; margin-bottom: 40px;
+}
+.btn-start {
+background: var(–accent); border: none; border-radius: 6px;
+color: #000; cursor: pointer; font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px; letter-spacing: 0.12em; padding: 18px 36px;
+transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(212,255,0,0.25); }
+
+/* Success */
+#successSlide {
+position: fixed; inset: 0; display: none;
+flex-direction: column; justify-content: center; align-items: flex-start;
+padding: 0 clamp(28px, 10vw, 160px);
+animation: fadeUp 0.6s ease both;
+}
+#successSlide.show { display: flex; }
+.success-icon {
+width: 64px; height: 64px; border-radius: 50%; background: var(–accent);
+display: flex; align-items: center; justify-content: center; margin-bottom: 28px;
+}
+.success-icon svg { width: 28px; height: 28px; }
+.success-h {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(40px, 7vw, 72px); line-height: 0.95; margin-bottom: 20px;
+}
+.success-p { font-size: 16px; line-height: 1.7; color: var(–muted); max-width: 400px; }
+
+/* Bottom nav */
+.bottom-nav {
+position: fixed; bottom: 0; left: 0; right: 0;
+display: flex; align-items: center; justify-content: space-between;
+padding: 16px 28px; border-top: 1px solid var(–border); z-index: 50;
+}
+.nav-arrows { display: flex; gap: 8px; }
+.arrow-btn {
+width: 36px; height: 36px; background: var(–mid);
+border: 1px solid var(–border); border-radius: 6px;
+color: var(–white); cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+font-size: 14px; transition: border-color 0.15s, background 0.15s;
+}
+.arrow-btn:hover { border-color: rgba(245,242,237,0.3); background: #222; }
+.arrow-btn:disabled { opacity: 0.2; cursor: default; pointer-events: none; }
+.powered { font-size: 11px; color: #2e2e2e; letter-spacing: 0.05em; }
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(24px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+</head>
+<body>
+
+<div id="progressBar" style="width:0%"></div>
+
+<div class="topnav">
+  <span class="brand">Nikan's Elite Coaching</span>
+  <span class="step-counter" id="stepCounter"></span>
+</div>
+
+<div id="slides">
+
+  <!-- Welcome -->
+
+  <div class="slide active" id="slide-welcome">
+    <div style="max-width:680px">
+      <p class="welcome-tag">Nikan's Elite Coaching · Application</p>
+      <h1 class="welcome-h1">Let's <em>Build</em><br>Your Best</h1>
+      <p class="welcome-sub">Takes about 2 minutes. I'll review your answers and reach out within 48 hours to talk about your goals.</p>
+      <button class="btn-start" onclick="startForm()">Start Application &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Q1: First name -->
+
+  <div class="slide" id="slide-1">
+    <div class="q-num">1</div>
+    <p class="q-text">What's your first name?</p>
+    <input class="text-input" id="q1" type="text" placeholder="Type your name…" autocomplete="off" maxlength="60">
+    <div class="error-msg" id="err-1">Please enter your name.</div>
+    <div class="cta-wrap">
+      <button class="btn-next" onclick="next(1)">OK &rarr;</button>
+      <span class="hint-text">press <kbd>Enter</kbd> ↵</span>
+    </div>
+  </div>
+
+  <!-- Q2: Email -->
+
+  <div class="slide" id="slide-2">
+    <div class="q-num">2</div>
+    <p class="q-text">What's your email address?</p>
+    <input class="text-input" id="q2" type="email" placeholder="you@email.com" autocomplete="off">
+    <div class="error-msg" id="err-2">Please enter a valid email address.</div>
+    <div class="cta-wrap">
+      <button class="btn-next" onclick="next(2)">OK &rarr;</button>
+      <span class="hint-text">press <kbd>Enter</kbd> ↵</span>
+    </div>
+  </div>
+
+  <!-- Q3: Instagram -->
+
+  <div class="slide" id="slide-3">
+    <div class="q-num">3</div>
+    <p class="q-text">What's your Instagram handle?</p>
+    <p class="q-sub">Optional — skip if you prefer.</p>
+    <input class="text-input" id="q3" type="text" placeholder="@yourhandle" autocomplete="off" maxlength="60">
+    <div class="cta-wrap">
+      <button class="btn-next" onclick="next(3)">OK &rarr;</button>
+      <span class="hint-text">press <kbd>Enter</kbd> ↵</span>
+    </div>
+  </div>
+
+  <!-- Q4: Primary goal -->
+
+  <div class="slide" id="slide-4">
+    <div class="q-num">4</div>
+    <p class="q-text">What's your primary goal?</p>
+    <div class="choices" id="choices-4">
+      <button class="choice-btn" data-val="Build muscle" onclick="selectChoice(4, this)"><span class="key-hint">A</span> Build muscle</button>
+      <button class="choice-btn" data-val="Lose fat" onclick="selectChoice(4, this)"><span class="key-hint">B</span> Lose fat</button>
+      <button class="choice-btn" data-val="Improve strength" onclick="selectChoice(4, this)"><span class="key-hint">C</span> Improve strength</button>
+      <button class="choice-btn" data-val="Improve diet / nutrition" onclick="selectChoice(4, this)"><span class="key-hint">D</span> Improve diet / nutrition</button>
+      <button class="choice-btn" data-val="Have accountability for my goals" onclick="selectChoice(4, this)"><span class="key-hint">E</span> Have accountability for my goals</button>
+    </div>
+    <div class="error-msg" id="err-4">Please select an option.</div>
+  </div>
+
+  <!-- Q5: Experience -->
+
+  <div class="slide" id="slide-5">
+    <div class="q-num">5</div>
+    <p class="q-text">How would you describe your training experience?</p>
+    <div class="choices" id="choices-5">
+      <button class="choice-btn" data-val="Complete beginner" onclick="selectChoice(5, this)"><span class="key-hint">A</span> Complete beginner</button>
+      <button class="choice-btn" data-val="Some experience (under 1 yr)" onclick="selectChoice(5, this)"><span class="key-hint">B</span> Some experience (under 1 yr)</button>
+      <button class="choice-btn" data-val="Intermediate (1–3 yrs)" onclick="selectChoice(5, this)"><span class="key-hint">C</span> Intermediate (1–3 yrs)</button>
+      <button class="choice-btn" data-val="Advanced (3+ yrs)" onclick="selectChoice(5, this)"><span class="key-hint">D</span> Advanced (3+ yrs)</button>
+    </div>
+    <div class="error-msg" id="err-5">Please select an option.</div>
+  </div>
+
+  <!-- Q6: Blockers (multi-select) -->
+
+  <div class="slide" id="slide-6">
+    <div class="q-num">6</div>
+    <p class="q-text">What has stopped you from achieving your goal?</p>
+    <p class="q-sub">Choose all that apply.</p>
+    <div class="multi-choices" id="choices-6">
+      <button class="multi-btn" data-val="Lack of knowledge" onclick="toggleMulti(this)">
+        <span class="check-box"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Lack of knowledge
+      </button>
+      <button class="multi-btn" data-val="Lack of commitment" onclick="toggleMulti(this)">
+        <span class="check-box"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Lack of commitment
+      </button>
+      <button class="multi-btn" data-val="Lack of accountability" onclick="toggleMulti(this)">
+        <span class="check-box"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Lack of accountability
+      </button>
+      <button class="multi-btn" data-val="Lack of time" onclick="toggleMulti(this)">
+        <span class="check-box"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Lack of time
+      </button>
+      <button class="multi-btn" data-val="Other" onclick="toggleMulti(this)">
+        <span class="check-box"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Other
+      </button>
+    </div>
+    <div class="error-msg" id="err-6">Please select at least one option.</div>
+    <div class="cta-wrap">
+      <button class="btn-next" onclick="next(6)">OK &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Q7: Previously coached -->
+
+  <div class="slide" id="slide-7">
+    <div class="q-num">7</div>
+    <p class="q-text">Have you ever worked with a personal trainer or online coach?</p>
+    <div class="choices" id="choices-7">
+      <button class="choice-btn" data-val="No, this would be my first time" onclick="selectChoice(7, this)"><span class="key-hint">A</span> No, this would be my first time</button>
+      <button class="choice-btn" data-val="Yes, with an in-person trainer" onclick="selectChoice(7, this)"><span class="key-hint">B</span> Yes, with an in-person trainer</button>
+      <button class="choice-btn" data-val="Yes, with an online coach" onclick="selectChoice(7, this)"><span class="key-hint">C</span> Yes, with an online coach</button>
+      <button class="choice-btn" data-val="Yes, both in-person and online" onclick="selectChoice(7, this)"><span class="key-hint">D</span> Yes, both in-person and online</button>
+    </div>
+    <div class="error-msg" id="err-7">Please select an option.</div>
+  </div>
+
+</div>
+
+<!-- Success screen -->
+
+<div id="successSlide">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <h2 class="success-h">Application<br>Received.</h2>
+  <p class="success-p">Thanks for applying! I'll review your details and get back to you within 48 hours.</p>
+</div>
+
+<!-- Bottom nav -->
+
+<div class="bottom-nav" id="bottomNav" style="display:none">
+  <div class="nav-arrows">
+    <button class="arrow-btn" id="btnUp" onclick="goBack()" title="Previous">&#9650;</button>
+    <button class="arrow-btn" id="btnDown" onclick="goForward()" title="Next">&#9660;</button>
+  </div>
+  <span class="powered">nikanselitecoaching.com</span>
+</div>
+
+<script>
+  const TOTAL = 7;
+  let current = 0;
+  const answers = {};
+  const choiceAnswers = { 4: null, 5: null, 7: null };
+
+  function startForm() {
+    document.getElementById('bottomNav').style.display = 'flex';
+    goTo(1);
+  }
+
+  function updateProgress() {
+    const pct = current === 0 ? 0 : Math.round((current / TOTAL) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('stepCounter').textContent = current > 0 ? current + ' / ' + TOTAL : '';
+    document.getElementById('btnUp').disabled = current <= 1;
+  }
+
+  function slideId(n) {
+    return n === 0 ? 'slide-welcome' : 'slide-' + n;
+  }
+
+  function goTo(n) {
+    const fromEl = document.getElementById(slideId(current));
+    fromEl.classList.remove('active');
+    fromEl.classList.add('exit-up');
+    setTimeout(() => fromEl.classList.remove('exit-up'), 400);
+
+    current = n;
+    updateProgress();
+
+    const toEl = document.getElementById(slideId(n));
+    toEl.classList.add('active');
+
+    const inp = toEl.querySelector('.text-input');
+    if (inp) setTimeout(() => inp.focus(), 430);
+  }
+
+  function goBack() {
+    if (current <= 1) return;
+    const fromEl = document.getElementById(slideId(current));
+    fromEl.classList.remove('active');
+    fromEl.classList.add('exit-up');
+    setTimeout(() => fromEl.classList.remove('exit-up'), 400);
+
+    current--;
+    updateProgress();
+
+    const toEl = document.getElementById(slideId(current));
+    // Animate in from below when going back
+    toEl.style.transition = 'none';
+    toEl.style.transform = 'translateY(48px)';
+    toEl.style.opacity = '0';
+    toEl.classList.add('active');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        toEl.style.transition = '';
+        toEl.style.transform = '';
+        toEl.style.opacity = '';
+      });
+    });
+
+    const inp = toEl.querySelector('.text-input');
+    if (inp) setTimeout(() => inp.focus(), 430);
+  }
+
+  function goForward() { next(current); }
+
+  function showError(n, show) {
+    const el = document.getElementById('err-' + n);
+    if (el) el.classList.toggle('show', show);
+  }
+
+  function validate(n) {
+    if (n === 1) {
+      const v = document.getElementById('q1').value.trim();
+      if (!v) { showError(1, true); return false; }
+      answers[1] = v; showError(1, false); return true;
+    }
+    if (n === 2) {
+      const v = document.getElementById('q2').value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { showError(2, true); return false; }
+      answers[2] = v; showError(2, false); return true;
+    }
+    if (n === 3) {
+      answers[3] = document.getElementById('q3').value.trim();
+      return true;
+    }
+    if (n === 4 || n === 5 || n === 7) {
+      if (!choiceAnswers[n]) { showError(n, true); return false; }
+      answers[n] = choiceAnswers[n]; showError(n, false); return true;
+    }
+    if (n === 6) {
+      const sel = [...document.querySelectorAll('#choices-6 .multi-btn.selected')].map(b => b.dataset.val);
+      if (!sel.length) { showError(6, true); return false; }
+      answers[6] = sel; showError(6, false); return true;
+    }
+    return true;
+  }
+
+  function next(n) {
+    if (!validate(n)) return;
+    if (n < TOTAL) { goTo(n + 1); }
+    else { submit(); }
+  }
+
+  function selectChoice(qNum, btn) {
+    document.querySelectorAll('#choices-' + qNum + ' .choice-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    choiceAnswers[qNum] = btn.dataset.val;
+    showError(qNum, false);
+    setTimeout(() => next(qNum), 380);
+  }
+
+  function toggleMulti(btn) {
+    btn.classList.toggle('selected');
+    if (document.getElementById('err-6').classList.contains('show')) {
+      const anySelected = document.querySelectorAll('#choices-6 .multi-btn.selected').length > 0;
+      showError(6, !anySelected);
+    }
+  }
+
+  async function submit() {
+    const payload = {
+      'First Name':         answers[1] || '',
+      'Email':              answers[2] || '',
+      'Instagram':          answers[3] || 'Not provided',
+      'Primary Goal':       answers[4] || '',
+      'Experience Level':   answers[5] || '',
+      'Blockers':           (answers[6] || []).join(', '),
+      'Previously Coached': answers[7] || '',
+      '_replyto':           answers[2] || '',
+      '_subject':           'New Coaching Enquiry from ' + (answers[1] || 'Someone'),
+    };
+
+    try {
+      await fetch('https://formspree.io/f/xrejplyb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch(e) { /* fail silently */ }
+
+    document.getElementById('slides').style.display = 'none';
+    document.getElementById('bottomNav').style.display = 'none';
+    document.getElementById('progressBar').style.width = '100%';
+    document.getElementById('stepCounter').textContent = '';
+    document.getElementById('successSlide').classList.add('show');
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if (current === 0) return;
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      if (document.activeElement && document.activeElement.classList.contains('choice-btn')) return;
+      next(current);
+      return;
+    }
+
+    if ([4, 5, 7].includes(current)) {
+      const map = { a:0, b:1, c:2, d:3, e:4 };
+      const key = e.key.toLowerCase();
+      if (key in map) {
+        const btns = document.querySelectorAll('#choices-' + current + ' .choice-btn');
+        if (btns[map[key]]) btns[map[key]].click();
+      }
+    }
+
+    if (e.key === 'ArrowUp') goBack();
+    if (e.key === 'ArrowDown') goForward();
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
